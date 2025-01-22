@@ -4,4 +4,9 @@ Ongoing project featuring the RTL development and UVM verification of a RISC-V c
 # Background
 Project will begin in simulation before eventually ending in synthesis on Zynq7000. The RISC-V instruction set architecture is an open source, reduced instruction set architecture rapidly growing in popularity among startups and established chip designers alike.
 
-# 
+# High Level Description
+
+# Directory Structure
+
+# Usage and Build
+ 
