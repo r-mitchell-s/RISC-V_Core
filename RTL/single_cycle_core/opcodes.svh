@@ -1,18 +1,26 @@
 `ifndef OPCODES_SVH
 `define OPCODES_SVH
 
-// - - - - - OPCODE TYPES - - - - - //
-parameter R_TYPE_OPCODE = 7'b0110011;
-parameter I_TYPE_OPCODE = 7'b0010011;
-parameter S_TYPE_OPCODE = 7'b0100011;
-parameter B_TYPE_OPCODE = 7'b1100011;
-parameter U_TYPE_OPCODE = LUI_OPCODE | AUIPC_OPCODE;
-parameter J_TYPE_OPCODE = 7'b1101111;
+// - - - - - R-TYPE OPCODES - - - - - //
+parameter R_TYPE_OPCODE = 7'b0110011;   
 
-// - - - - - INDIVIDUAL INSTRUCTION OPCODES - - - - - //
+// - - - - - I-TYPE OPCODES - - - - - //
+parameter I_LOAD_OPCODE = 7'b0000011;
+parameter I_ARITH_OPCODE = 7'b0010011;
+parameter I_SHIFT_OPCODE = 7'b0010011;
+parameter JALR_OPCODE = 7'b1100111;
 
-// U-types
+// - - - - - S-TYPE OPCODES - - - - - //
+parameter S_TYPE_OPCODE = 7'b0100011;                          
+
+// - - - - - B-TYPE OPCODES - - - - - //
+parameter B_TYPE_OPCODE = 7'b1100011;          
+
+// - - - - - U-TYPE OPCODES - - - - - // 
 parameter LUI_OPCODE = 7'b0110111;
 parameter AUIPC_OPCODE = 7'b0010111;
+
+// - - - - - J-TYPE OPCODES - - - - - //
+parameter JAL_OPCODE = 7'b1101111;
 
 `endif

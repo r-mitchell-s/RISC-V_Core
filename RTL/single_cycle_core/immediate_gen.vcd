@@ -1,0 +1,98 @@
+$date
+	Thu Jan 23 00:49:56 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module immediate_gen_tb $end
+$var wire 32 ! o_ext_imm [31:0] $end
+$var reg 32 " i_instr [31:0] $end
+$var reg 7 # i_opcode [6:0] $end
+$var integer 32 $ num_passes [31:0] $end
+$var integer 32 % num_tests [31:0] $end
+$scope module dut $end
+$var wire 32 & i_instr [31:0] $end
+$var wire 7 ' i_opcode [6:0] $end
+$var reg 32 ( o_ext_imm [31:0] $end
+$upscope $end
+$scope task check_imm $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b11 (
+b11 '
+b1100001000000100000011 &
+b1 %
+b0 $
+b11 #
+b1100001000000100000011 "
+b11 !
+$end
+#5
+b11111111111111111111111111111111 !
+b11111111111111111111111111111111 (
+b10011 #
+b10011 '
+b11111111111100001000000100010011 "
+b11111111111100001000000100010011 &
+b10 %
+b1 $
+#10
+b100 !
+b100 (
+b1100111 #
+b1100111 '
+b10000001000000011100111 "
+b10000001000000011100111 &
+b11 %
+b10 $
+#15
+b100011 #
+b100011 '
+b1000001010001000100011 "
+b1000001010001000100011 &
+b100 %
+b11 $
+#20
+b1000 !
+b1000 (
+b1100011 #
+b1100011 '
+b1000001000010001100011 "
+b1000001000010001100011 &
+b101 %
+b100 $
+#25
+b1000000000000 !
+b1000000000000 (
+b110111 #
+b110111 '
+b1000010110111 "
+b1000010110111 &
+b110 %
+b101 $
+#30
+b10111 #
+b10111 '
+b1000010010111 "
+b1000010010111 &
+b111 %
+b110 $
+#35
+b10000 !
+b10000 (
+b1101111 #
+b1101111 '
+b1000000000000000011101111 "
+b1000000000000000011101111 &
+b1000 %
+b111 $
+#40
