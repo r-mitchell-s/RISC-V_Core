@@ -1,4 +1,7 @@
 // - - - - - FETCH - - - - - //
+// 
+// 
+
 module instr_mem (
   input    logic          clk,
   input    logic          reset_n,

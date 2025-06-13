@@ -1,4 +1,8 @@
-module yarp_decode import yarp_pkg::*; (
+// - - - - - DECODE - - - - - //
+// 
+// 
+
+module decode import riscv_pkg::*; (
   input   logic [31:0]  instr_i,
   output  logic [4:0]   rs1_o,
   output  logic [4:0]   rs2_o,
@@ -24,7 +28,6 @@ module yarp_decode import yarp_pkg::*; (
   logic u_type;
   logic j_type;
   
-
   // output flag logic
   always_comb begin
     r_type = 1'b0;
@@ -66,7 +69,6 @@ module yarp_decode import yarp_pkg::*; (
     endcase
   end
 
-  
   // instruction field assignments
   assign op_o = 			instr_i[6:0];
   assign rd_o = 			instr_i[11:7];
@@ -75,7 +77,7 @@ module yarp_decode import yarp_pkg::*; (
   assign rs2_o = 			instr_i[24:20];
   assign funct7_o = 		instr_i[31:25];
     
-	// type flag assignments
+  // type flag assignments
   assign r_type_instr_o = 	r_type;
   assign i_type_instr_o = 	i_type;
   assign s_type_instr_o = 	s_type;
