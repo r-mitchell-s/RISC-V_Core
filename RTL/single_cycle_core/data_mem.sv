@@ -34,7 +34,7 @@ module data_mem import riscv_pkg::*; (
   logic [31:0] data_mem_rd_zero_extnd;
   
   // multiplexing to generate correct extensions based on byte enable signal
-  always @(*) begin
+  always_comb begin
     case (data_byte_en_i) 
       BYTE: begin
         data_mem_rd_zero_extnd = {{24{1'b0}}, mem_rd_data_i[7:0]};

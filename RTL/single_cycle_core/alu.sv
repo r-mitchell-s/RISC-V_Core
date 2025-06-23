@@ -8,16 +8,9 @@ module execute import riscv_pkg::*; (
   input   logic [3:0]  op_sel_i,						// operation select line
   output  logic [31:0] alu_res_o						// ALU output
 );
-
-  // for signed less-than operator
-  logic signed [31:0] signed_opr_a;
-  logic signed [31:0] signed_opr_b;
-
-  assign signed_opr_a = opr_a_i;
-  assign signed_opr_b = opr_b_i;
   
   // define ALU behavior according to the selected operation
-  always @* begin
+  always_comb begin
     case (op_sel_i) 
       ADD: begin
         alu_res_o = opr_a_i + opr_b_i;
@@ -43,11 +36,11 @@ module execute import riscv_pkg::*; (
       XOR: begin
         alu_res_o = opr_a_i ^ opr_b_i;
       end
-      LT: begin
+      SLTU: begin
         alu_res_o = {31'h0, opr_a_i < opr_b_i};
       end
       SLT: begin
-        alu_res_o = {31'h0, signed_opr_a < signed_opr_b};
+        alu_res_o = {31'h0, $signed(opr_a) < $signed(opr_b)};
       end
       default: begin
         alu_res_o = 32'h00;

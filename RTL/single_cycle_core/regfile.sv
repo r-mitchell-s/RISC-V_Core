@@ -21,7 +21,7 @@ module regfile (
   logic [31:0] regfile [31:0];
   
   // sequential block for handling writes and resets
-  always @(posedge clk) begin
+  always @(posedge clk or negedge reset_n) begin
   	if (!reset_n) begin
       for (int i = 0; i < 31; i++) begin
         regfile[i] <= 0;
@@ -32,8 +32,9 @@ module regfile (
   end
       
 	// comibinatorial assignment for same-cycle reads
-  always @* begin
+  always_comb begin
     rs1_data_o = regfile[rs1_addr_i];
     rs2_data_o = regfile[rs2_addr_i];
   end
+
 endmodule

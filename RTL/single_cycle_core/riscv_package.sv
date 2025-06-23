@@ -1,5 +1,5 @@
 package riscv_pkg;
-
+  
   // instruction-type opcode macros
   typedef enum logic [6:0] {
     R_TYPE = 7'h33,							// register-type only operate on registers
@@ -13,18 +13,18 @@ package riscv_pkg;
     J_TYPE = 7'h6F							// jump-type insrtuctions that use 20-bit mem offset (JAL)
   } opcode_t;
   
-  // ALU opcode macros
+  // ALU operation selection macros
   typedef enum logic [3:0] {
-    ADD = 0,
-    SUB = 1,
-    SLL = 2,
-    SRL = 3,
-    SRA = 4,
-    OR = 5,
-    AND = 6,
-    XOR = 7,
-    LT = 8,
-    SLT = 9
+    OP_ADD = 0,
+    OP_SUB = 1,
+    OP_SLL = 2,
+    OP_SRL = 3,
+    OP_SRA = 4,
+    OP_OR = 5,
+    OP_AND = 6,
+    OP_XOR = 7,
+    OP_SLTU = 8,
+    OP_SLT = 9
   } alu_code_t;
   
   // data memory interface macros for sw/lw
@@ -60,7 +60,7 @@ package riscv_pkg;
     OR = 4'b0110,
     AND = 4'b0111,
     SUB = 4'b1000,
-    SRLA = 4'b1101
+    SRA = 4'b1101
   } r_type_t;
   
   // I-type control signals in format {opcode[4], funct3}
@@ -81,14 +81,14 @@ package riscv_pkg;
   } i_type_t;
   
   // S-type control signals in format {funct3}
-  typedef enum logic [3:0] {
-    SB = 3'b000,
+  typedef enum logic [2:0] {
+  	SB = 3'b000,
     SH = 3'b001,
     SW = 3'b010
   } s_type_t;
   
   // B-type control signals in format {funct3}
-  typedef enum logic [3:0] {
+  typedef enum logic [2:0] {
     BEQ = 3'b000,
     BNE = 3'b001,
     BLT = 3'b100,
@@ -98,9 +98,9 @@ package riscv_pkg;
   } b_type_t;
   
   // U-type control signals in format {funct7}
-  typedef enum logic [5:0] {
+  typedef enum logic [6:0] {
     LUI = 7'b0110111,
-    AUIPC = 7'b0010111,
+    AUIPC = 7'b0010111
   } u_type_t;
   
   // J-type control signals (JAL) in format {}
