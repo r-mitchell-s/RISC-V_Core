@@ -1,65 +1,114 @@
-// --------------------------------------------------------
-// Data Memory
-// --------------------------------------------------------
-
-module data_mem import riscv_pkg::*; (
-  input   logic           clk,
-  input   logic           reset_n,
-
-  // Data request from current instruction
-  input   logic           data_req_i,
-  input   logic [31:0]    data_addr_i,
-  input   logic [1:0]     data_byte_en_i,
-  input   logic           data_wr_i,
-  input   logic [31:0]    data_wr_data_i,
-
-  input   logic           data_zero_extnd_i,
-
-  // Read/Write request to memory
-  output  logic           data_mem_req_o,
-  output  logic  [31:0]   data_mem_addr_o,
-  output  logic  [1:0]    data_mem_byte_en_o,
-  output  logic           data_mem_wr_o,
-  output  logic  [31:0]	  data_mem_wr_data_o,
-  
-  // Read data from memory
-  input   logic [31:0]    mem_rd_data_i,
-
-  // Data output
-  output  logic [31:0]    data_mem_rd_data_o
+module data_mem import riscv_pkg::*; #(
+    parameter DMEM_WORDS = 1024
+)(
+  input   logic          clk,
+  input   logic          reset_n,
+  input   logic          data_mem_req_i,
+  input   logic [31:0]   data_mem_addr_i,
+  input   logic [1:0]    data_mem_byte_en_i,
+  input   logic          data_mem_wr_i,
+  input   logic [31:0]   data_mem_wr_data_i,
+  input   logic          data_mem_zero_extnd_i,
+  output  logic [31:0]   data_mem_rd_data_o
 );
 
-  // internal signal declarations for sign and zero extension
-  logic [31:0] data_mem_rd_sign_extnd;
-  logic [31:0] data_mem_rd_zero_extnd;
-  
-  // multiplexing to generate correct extensions based on byte enable signal
-  always_comb begin
-    case (data_byte_en_i) 
-      BYTE: begin
-        data_mem_rd_zero_extnd = {{24{1'b0}}, mem_rd_data_i[7:0]};
-        data_mem_rd_sign_extnd = {{24{mem_rd_data_i[7]}}, mem_rd_data_i[7:0]};
-      end HALF_WORD: begin
-        data_mem_rd_zero_extnd = {{16{1'b0}}, mem_rd_data_i[15:0]};
-        data_mem_rd_sign_extnd = {{16{mem_rd_data_i[15]}}, mem_rd_data_i[15:0]};
-      end WORD: begin
-        data_mem_rd_zero_extnd = mem_rd_data_i;
-      	data_mem_rd_sign_extnd = mem_rd_data_i;
-      end default: begin
-        data_mem_rd_zero_extnd = 0;
-      	data_mem_rd_sign_extnd = 0;
-      end
-    endcase
-  end
+    // data memory array
+    logic [DMEM_WORDS - 1 : 0] [31:0] data_mem_array;
+
+    // registered read data
+    logic [31:0] read_data;
+    logic [7:0] extracted_byte;
+
+    // decode the address into the byte offset and word address
+    logic [$clog2(DMEM_WORDS) - 1:0] word_address; 
+    logic [1:0] byte_offset;
+
+    // continuous assignment for the address decoding
+    assign word_address = data_mem_addr_i[31:2];
+    assign byte_offset = data_mem_addr_i[1:0];
+
+    // sequential logic for read/write behavior
+    always_ff @(posedge clk or negedge reset_n) begin
+        if (!reset_n) begin
+            data_mem_array <= '0;
         
-  // output assignments that directly interface to the memory unit
-  assign data_mem_req_o = data_req_i;
-  assign data_mem_addr_o = data_addr_i;
-  assign data_mem_byte_en_o = data_byte_en_i;
-  assign data_mem_wr_o = data_wr_i;
-  assign data_mem_wr_data_o = data_wr_data_i;
+        // memory access condition
+        end else if (data_mem_req_i) begin
+            
+            // write case
+            if (data_mem_wr_i) begin
 
-  // based on the sign-extension input, load the proper destination reg output
-  assign data_mem_rd_data_o = data_zero_extnd_i ? data_mem_rd_zero_extnd : data_mem_rd_sign_extnd;
+                // write size and address determination
+                case (data_mem_byte_en_i)
 
+                    // byte write case handling
+                    BYTE: begin
+                        case (byte_offset)
+                            2'b00:   data_mem_array[word_address][7:0]   <= data_mem_wr_data_i[7:0];
+                            2'b01:   data_mem_array[word_address][15:8]  <= data_mem_wr_data_i[7:0];
+                            2'b10:   data_mem_array[word_address][23:16] <= data_mem_wr_data_i[7:0];
+                            2'b11:   data_mem_array[word_address][31:24] <= data_mem_wr_data_i[7:0];
+                        endcase
+                    end
+
+                    // half-word write case handling
+                    HALF_WORD: begin
+                        case (byte_offset[1])
+                            1'b0:    data_mem_array[word_address][15:0]  <= data_mem_wr_data_i[15:0];
+                            1'b1:    data_mem_array[word_address][31:16] <= data_mem_wr_data_i[15:0];
+                        endcase
+                    end
+
+                    // word write - simple case
+                    WORD: begin
+                        data_mem_array[word_address] <= data_mem_wr_data_i;
+                    end
+                endcase
+            end
+                
+            // read case handling (memory request but no write enabled)
+            read_data <= data_mem_array[word_address];
+        end
+    end
+
+    // combinatorial logic for extracting correct bytes from read data
+    always_comb begin
+        case (data_mem_byte_en_i)
+            
+            // byte access handling - depends on zero extension input
+            BYTE: begin
+                if (data_mem_zero_extnd_i) begin
+                    data_mem_rd_data_o = {24'b0, extracted_byte};
+                end else begin
+                    data_mem_rd_data_o = {{24{extracted_byte[7]}}, extracted_byte};
+                end
+            end
+
+            // half word access handling - depends on zero extension input
+            HALF_WORD: begin
+                if (data_mem_zero_extnd_i) begin
+                    data_mem_rd_data_o = byte_offset[1] ? {16'b0, read_data[31:16]} : {16'b0, read_data[15:0]};
+                end else begin
+                    data_mem_rd_data_o = byte_offset[1] ? {{16{read_data[31]}}, read_data[31:16]} : {{16{read_data[15]}}, read_data[15:0]};
+                end
+            end
+
+            // for full word, don't differentiate between zero and sign extended data
+            WORD: data_mem_rd_data_o = read_data;
+
+            // default to 0 output assignment
+            default: data_mem_rd_data_o = '0;
+        endcase
+    end
+
+    // single byte selection block
+    always_comb begin
+        case (byte_offset)
+            2'b00: extracted_byte = read_data[7:0];
+            2'b01: extracted_byte = read_data[15:8];
+            2'b10: extracted_byte = read_data[23:16];
+            2'b11: extracted_byte = read_data[31:24];
+            default: extracted_byte = '0; 
+        endcase
+    end
 endmodule

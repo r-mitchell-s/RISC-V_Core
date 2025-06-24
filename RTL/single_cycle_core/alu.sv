@@ -2,7 +2,7 @@
 // 
 // 
 
-module execute import riscv_pkg::*; (
+module alu import riscv_pkg::*; (
   input   logic [31:0] opr_a_i,							// operand A
   input   logic [31:0] opr_b_i,							// operand B
   input   logic [3:0]  op_sel_i,						// operation select line
