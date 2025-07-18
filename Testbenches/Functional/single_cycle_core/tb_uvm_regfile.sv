@@ -120,7 +120,7 @@ endclass
 
 // ---------- MONITOR ---------- //
 class regfile_monitor extends uvm_monitor;
-    `uvm_component_utils(regfile_monitor);
+    `uvm_component_utils(regfile_monitor)
 
     // declare the interface for output viewing
     virtual regfile_if vif;
@@ -165,76 +165,6 @@ class regfile_monitor extends uvm_monitor;
     endfunction
 endclass 
 
-// ---------- AGENT ---------- //
-class regfile_agent extends uvm_agent;
-    `uvm_component_utils(regfile_agent)
-    
-    // instantiate driver, monitor, and sequencer
-    regfile_sequencer sqr;
-    regfile_driver drv;
-    regfile_monitor mon;
-
-    // build phase (assemble the driver, monitor, sequence, and DUT) 
-    function void build_phase(uvm_phase phase);
-        super.build_phase(phase);
-
-        // always create passive components (monitor)
-        mon = regfile_monitor::type_id::create("mon", this);
-
-        // create sequencer and driver in active agents
-        if (get_is_active() == UVM_ACTIVE) begin
-            sqr = regfile_sequencer::type_id::create("sqr", this);
-            drv = regfile_driver::type_id::create("drv", this);
-        end
-    endfunction
-
-    // connect phase coordinates the components within the agent
-    function connect_phase(uvm_phase phase);
-        super.connect_phase(phase);
-
-        // connect the driver to the sequencer if the agent is active
-        if (get_is_active() == UVM_ACTIVE) begin
-            drv.seq_item_port.connect(sqr.seq_item_export);
-        end
-    endfunction
-
-    // constructor
-    function new(string name = "regfile_agent", uvm_component parent);
-        super.new(name, parent);
-    endfunction
-endclass
-
-// ---------- ENVIRONMENT ---------- // 
-class regfile_env extends uvm_env;
-    `uvm_component_utils(regfile_env)
-
-    // comopnents declaration
-    regfile_agent agent;
-    regfile_scoreboard sb;
-    
-    // constructor
-    function new(string name = "regfile_env", uvm_component parent);
-        super.new(name, parent);
-    endfunction
-
-    // build phase
-    function void build_phase(uvm_phase phase);
-        super.build_phase(phase);
-
-        // create agent and scoreboard components
-        agent = regfile_agent::type_id::create("agent", this);
-        sb = regfile_scoreboard::type_id::create("sb", this);
-    endfunction
-
-    // connect phase
-    function connect_phase(uvm_phase phase);
-        super.connect_phase(phase);
-
-        // connect the scoreboard's analysos port to that ofthe agent
-        agent.mon.ap.connect(sb.ap_imp);
-    endfunction
-endclass
-
 // ---------- SCOREBOARD ---------- //
 class regfile_scoreboard extends uvm_scoreboard;
     `uvm_component_utils(regfile_scoreboard)
@@ -276,6 +206,9 @@ class regfile_scoreboard extends uvm_scoreboard;
         // increment transaction counter
         transactions_checked++;
 
+        // check of the golden transaction matches the dut transaction
+        check_read_data(tr);
+
         // update reference model to begin the write
         if (tr.wr_en && tr.rd_addr != 0) begin
             golden_regfile[tr.rd_addr] = tr.wr_data;
@@ -283,9 +216,6 @@ class regfile_scoreboard extends uvm_scoreboard;
 
         // always lock register 0 at 32'b0;
         golden_regfile[0] = 0;
-
-        // check of the golden transaction matches the dut transaction
-        check_read_data(tr);
 
         // occasionally print progress
         if (transactions_checked % 100 == 0) begin
@@ -340,6 +270,76 @@ class regfile_scoreboard extends uvm_scoreboard;
     endfunction
 endclass
 
+// ---------- AGENT ---------- //
+class regfile_agent extends uvm_agent;
+    `uvm_component_utils(regfile_agent)
+    
+    // instantiate driver, monitor, and sequencer
+    regfile_sequencer sqr;
+    regfile_driver drv;
+    regfile_monitor mon;
+
+    // build phase (assemble the driver, monitor, sequence, and DUT) 
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
+        // always create passive components (monitor)
+        mon = regfile_monitor::type_id::create("mon", this);
+
+        // create sequencer and driver in active agents
+        if (get_is_active() == UVM_ACTIVE) begin
+            sqr = regfile_sequencer::type_id::create("sqr", this);
+            drv = regfile_driver::type_id::create("drv", this);
+        end
+    endfunction
+
+    // connect phase coordinates the components within the agent
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+
+        // connect the driver to the sequencer if the agent is active
+        if (get_is_active() == UVM_ACTIVE) begin
+            drv.seq_item_port.connect(sqr.seq_item_export);
+        end
+    endfunction
+
+    // constructor
+    function new(string name = "regfile_agent", uvm_component parent);
+        super.new(name, parent);
+    endfunction
+endclass
+
+// ---------- ENVIRONMENT ---------- // 
+class regfile_env extends uvm_env;
+    `uvm_component_utils(regfile_env)
+
+    // comopnents declaration
+    regfile_agent agent;
+    regfile_scoreboard sb;
+    
+    // constructor
+    function new(string name = "regfile_env", uvm_component parent);
+        super.new(name, parent);
+    endfunction
+
+    // build phase
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+
+        // create agent and scoreboard components
+        agent = regfile_agent::type_id::create("agent", this);
+        sb = regfile_scoreboard::type_id::create("sb", this);
+    endfunction
+
+    // connect phase
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+
+        // connect the scoreboard's analysos port to that ofthe agent
+        agent.mon.ap.connect(sb.ap_imp);
+    endfunction
+endclass
+
 // ---------- SEQUENCE ---------- //
 class regfile_sequence extends uvm_sequence #(regfile_transaction);
     `uvm_object_utils(regfile_sequence)
@@ -356,7 +356,7 @@ class regfile_sequence extends uvm_sequence #(regfile_transaction);
         regfile_transaction req;
 
         // seqence of 10 transactions
-        repeat(10) begin
+        repeat(1000) begin
 
             // create a transaction
             req = regfile_transaction::type_id::create("req");
@@ -443,6 +443,12 @@ module tb_regfile_top;
         .rs2_data_o(regfile_if_instance.rs2_data_o)
     );
 
+    // dumpfile creation
+    initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(0, "dump.vcd");
+    end
+    
     // reset sequence
     initial begin
         regfile_if_instance.reset_n = 0;

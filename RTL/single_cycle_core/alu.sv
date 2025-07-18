@@ -40,7 +40,7 @@ module alu import riscv_pkg::*; (
         alu_res_o = {31'h0, opr_a_i < opr_b_i};
       end
       SLT: begin
-        alu_res_o = {31'h0, $signed(opr_a) < $signed(opr_b)};
+        alu_res_o = {31'h0, $signed(opr_a_i) < $signed(opr_b_i)};
       end
       default: begin
         alu_res_o = 32'h00;
