@@ -1,6 +1,10 @@
 // - - - - - BRANCH CONTROL UNIT - - - - - // 
 //
-//
+// Resolves whether or not a branch will be taken, active only when
+// the cyrrent instructioni s B-type. Does so by evaluating the branch 
+// condition given the two operand registers' contents.
+// 
+// Output is combinatorial, not registered.
 
 module branch_ctrl import riscv_pkg::*; (
   
@@ -14,9 +18,9 @@ module branch_ctrl import riscv_pkg::*; (
 	// register to store branch status
 	logic branch_taken;
 
-  // decide result of branch based on the
-  always_comb begin
-    if (is_b_type_ctl_i) begin
+  	// decide result of branch based on the
+  	always_comb begin
+  	  	if (is_b_type_ctl_i) begin
 			case (instr_func3_ctl_i)
 				BEQ: branch_taken = opr_a_i == opr_b_i;
 				BNE: branch_taken = opr_a_i != opr_b_i;
@@ -29,7 +33,7 @@ module branch_ctrl import riscv_pkg::*; (
 		end else begin
 			branch_taken = 1'b0;
 		end
-  end
+  	end
 
   // final output assignment
   assign branch_taken_o = branch_taken;

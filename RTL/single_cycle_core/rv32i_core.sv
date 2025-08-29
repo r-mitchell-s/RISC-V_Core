@@ -9,7 +9,7 @@
 // alu.sv - 
 // 
 
-module rv32i_core import riscv_pkg::*; #(
+module rv32i_core #(
   parameter RESET_PC = 32'h0
 )(
   input   logic          clk,
@@ -30,6 +30,9 @@ module rv32i_core import riscv_pkg::*; #(
   input   logic [31:0]   data_mem_rd_data_i
 
 );
+
+  // package import
+  import riscv_pkg::*;
 
   // - - - - - - - - - - - - - - - - - - - - - - - - //
   // - - - - - INTERNAL SIGNAL DECLARATION - - - - - //

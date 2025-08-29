@@ -1,8 +1,13 @@
 // - - - - - FETCH - - - - - //
 // 
+// The fetch unit implements a simple instruction memory request. On
+// every cycle, the fetch unit will request the next instruction to be executed
+// (multiplexed at the top level between PC + 4 and the branch target). 
 // 
+// Outputs are combinatorial, but update with each instruction request, which is 
+// registered one cycle after inputs are supplied.
 
-module instr_mem (
+module fetch (
   input    logic          clk,
   input    logic          reset_n,
 

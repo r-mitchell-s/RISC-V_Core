@@ -1,0 +1,18 @@
+# Read the package file FIRST
+read_verilog -sv ../RTL/packages/riscv_pkg.sv
+
+# Read all dependency modules (adjust paths as needed)
+read_verilog -sv ../RTL/single_cycle_core/regfile.sv
+read_verilog -sv ../RTL/single_cycle_core/fetch.sv  
+read_verilog -sv ../RTL/single_cycle_core/decode.sv
+read_verilog -sv ../RTL/single_cycle_core/alu.sv
+read_verilog -sv ../RTL/single_cycle_core/ctrl_unit.sv
+read_verilog -sv ../RTL/single_cycle_core/branch_ctrl.sv
+read_verilog -sv ../RTL/single_cycle_core/data_mem_interface.sv
+
+# Finally read the top module
+read_verilog -sv ../RTL/single_cycle_core/rv32i_core.sv
+
+hierarchy -top rv32i_core
+proc; flatten; clean
+write_json netlist.json

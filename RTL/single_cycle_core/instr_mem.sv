@@ -1,3 +1,10 @@
+// - - - - - INSTRUCTION MEMORY - - - - - //
+// 
+// The instruction memory module is a simple 4KB RAM addressable by word. Wil later support direct
+// initialization with programs assembled using assembler.py
+// 
+// Outputs are registered on the cycle after inputs are supplied.
+
 module instr_mem #(
     parameter IMEM_WORDS = 1024
 )(

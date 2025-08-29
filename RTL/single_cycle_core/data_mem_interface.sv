@@ -1,6 +1,10 @@
-// --------------------------------------------------------
-// Data Memory
-// --------------------------------------------------------
+// - - - - - DATA MEMORY INTERFACE - - - - - // 
+// 
+// Given control signals from the CPU core's datapath, the interface generates read
+// and write requests and sends them to data memory, receiving back data that ot then passes
+// to the CPU.
+// 
+// Outputs are registered one cycle after inputs are supplied.
 
 module data_mem_interface import riscv_pkg::*; (
   input   logic           clk,

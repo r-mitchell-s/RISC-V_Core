@@ -1,12 +1,19 @@
 # RISC-V Core Implementation
-Ongoing project featuring the RTL development and UVM verification of a RISC-V core. First as a single-cycle processor, then upgrading to the canonical 5-stage piipeline, and then to an out-of-order execution microarchitecture. Self-directed project to acquaint myself with the RISC-V base ISA, and then to get some practice with industry CPU verification practices. Will eventually invlove integration with the RTL cache being worked on concurrently.
+This repository features an ongoing project including the development of a RISC-V core implementing the 32-bit integer instruction set. The project is planned to move in phases.
+
+1) Design and verification of the single cycle RV32I core using SystemVerilog and UVM
+2) Pipelining and verifying the 5-stage core, adding simple branch prediction and forwarding logic
+3) Adding one or two RISC-V extensions (very likely M and F, maybe going all the way to RV32G)
+4) Design and verification of a simple cache heirarchy
+5) Extending the top-level to a multicore system (2 cores, implementing coherency management)
 
 # Background
-Project will begin in simulation before eventually ending in synthesis on Zynq7000. The RISC-V instruction set architecture is an open source, reduced instruction set architecture rapidly growing in popularity among startups and established chip designers alike.
+This project will very likely last multiple years. I am currently wrapping up stage 1 (have been working on the core for 2 months, and have verified the core at unit level and run basic programs).
 
 # High Level Description
 
 # Directory Structure
+The top level directory is divided into source RTL, testbenches
 
 # Usage and Build
- 
+Usage is complicated right now. I do not any institutional access to a simulator capable of running UVM testbenches, and have been copying and pasting files into EDAplayground. Feel free to copy and paste modules nd play around.

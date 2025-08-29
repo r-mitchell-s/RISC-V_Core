@@ -1,6 +1,10 @@
 // - - - - - CONTROL UNIT - - - - - //
-// The control unit 
-//
+// 
+// Generates from an instruction's type and its fields all necessary control signals
+// that propagate throughout the CPU (ALU op-select, PC input muxing, ALU operand muxing, 
+// register write-back muxing, sign or zero extension).
+// 
+// Outputs are combinatorial, not registered.
 
 module ctrl_unit import riscv_pkg::*; (
 
@@ -145,7 +149,7 @@ module ctrl_unit import riscv_pkg::*; (
 
     // I-type 2: I-type jump operation (JALR handling)
     if (instr_opcode_i == I_TYPE2) begin
-      i_type_ctrls = '0
+      i_type_ctrls = '0;
       i_type_ctrls.alu_funct_sel = OP_ADD;                // 
       i_type_ctrls.rf_wr_data_sel = PC;                   //
       i_type_ctrls.pc_sel = 1'b1;                         //

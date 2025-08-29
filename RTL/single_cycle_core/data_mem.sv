@@ -1,3 +1,10 @@
+// - - - - - DATA MEMORY - - - - - // 
+// 
+// The data memory module implements a simple 4KB RAM for the CPU to load from and store to.
+// In compliance with the RV32I spec, the data memory is accessible at the word, half-word, and byte levels
+// 
+// Outputs are registered one cycle after inputs are supplied.
+
 module data_mem import riscv_pkg::*; #(
     parameter DMEM_WORDS = 1024
 )(
@@ -11,6 +18,14 @@ module data_mem import riscv_pkg::*; #(
   input   logic          data_mem_zero_extnd_i,
   output  logic [31:0]   data_mem_rd_data_o
 );
+
+    // macros defined in riscv_pkg for byte_en
+    typedef enum logic [1:0] {
+        BYTE,
+        HALF_WORD,
+        RESERVED,
+        WORD
+    } mem_access_size_t;
 
     // data memory array
     logic [DMEM_WORDS - 1 : 0] [31:0] data_mem_array;
@@ -73,32 +88,36 @@ module data_mem import riscv_pkg::*; #(
 
     // combinatorial logic for extracting correct bytes from read data
     always_comb begin
-        case (data_mem_byte_en_i)
-            
-            // byte access handling - depends on zero extension input
-            BYTE: begin
-                if (data_mem_zero_extnd_i) begin
-                    data_mem_rd_data_o = {24'b0, extracted_byte};
-                end else begin
-                    data_mem_rd_data_o = {{24{extracted_byte[7]}}, extracted_byte};
-                end
-            end
+      if (!data_mem_req_i) begin
+        data_mem_rd_data_o = 32'b0;
+      end else begin
+          case (data_mem_byte_en_i)
 
-            // half word access handling - depends on zero extension input
-            HALF_WORD: begin
-                if (data_mem_zero_extnd_i) begin
-                    data_mem_rd_data_o = byte_offset[1] ? {16'b0, read_data[31:16]} : {16'b0, read_data[15:0]};
-                end else begin
-                    data_mem_rd_data_o = byte_offset[1] ? {{16{read_data[31]}}, read_data[31:16]} : {{16{read_data[15]}}, read_data[15:0]};
-                end
-            end
+              // byte access handling - depends on zero extension input
+              BYTE: begin
+                  if (data_mem_zero_extnd_i) begin
+                      data_mem_rd_data_o = {24'b0, extracted_byte};
+                  end else begin
+                      data_mem_rd_data_o = {{24{extracted_byte[7]}}, extracted_byte};
+                  end
+              end
 
-            // for full word, don't differentiate between zero and sign extended data
-            WORD: data_mem_rd_data_o = read_data;
+              // half word access handling - depends on zero extension input
+              HALF_WORD: begin
+                  if (data_mem_zero_extnd_i) begin
+                      data_mem_rd_data_o = byte_offset[1] ? {16'b0, read_data[31:16]} : {16'b0, read_data[15:0]};
+                  end else begin
+                      data_mem_rd_data_o = byte_offset[1] ? {{16{read_data[31]}}, read_data[31:16]} : {{16{read_data[15]}}, read_data[15:0]};
+                  end
+              end
 
-            // default to 0 output assignment
-            default: data_mem_rd_data_o = '0;
-        endcase
+              // for full word, don't differentiate between zero and sign extended data
+              WORD: data_mem_rd_data_o = read_data;
+
+              // default to 0 output assignment
+              default: data_mem_rd_data_o = '0;
+          endcase
+      end
     end
 
     // single byte selection block

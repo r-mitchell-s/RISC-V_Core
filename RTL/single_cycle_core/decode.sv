@@ -1,6 +1,12 @@
 // - - - - - DECODE - - - - - //
 // 
+// The decode unit takes as its input the fetched instruction and determines the
+// instrictions type, as well as from which fields to pull ALU opcodes, register names, etc.
 // 
+// This decode unit asserts flags for the control unit to observe for routing signals
+// through the datapath, and also sign-extends the given immediate
+// 
+// outputs are combinatorial, not registered
 
 module decode import riscv_pkg::*; (
   input   logic [31:0]  instr_i,
@@ -87,4 +93,5 @@ module decode import riscv_pkg::*; (
   
   // immediate assignments
   assign instr_imm_o = 		instr_imm;
+
 endmodule

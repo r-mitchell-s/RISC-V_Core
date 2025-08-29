@@ -1,6 +1,13 @@
 // - - - - - EXECUTE (ALU) - - - - - //
 // 
+// The arithmetic logic unit (ALU) performs computaitions using
+// the contents of operand registers, generating an output to be 
+// written back to the regfile.
 // 
+// This ALU supports the necessary operations for the RV32I base integer
+// ISA, those being: ADD, SUB, SLL, SRL, SRA, OR, AND, XOR, SLT, and SLTU.
+// 
+// Outputs are combinatorial, not registered
 
 module alu import riscv_pkg::*; (
   input   logic [31:0] opr_a_i,							// operand A
