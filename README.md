@@ -16,4 +16,4 @@ This project will very likely last multiple years. I am currently wrapping up st
 The top level directory is divided into source RTL, testbenches
 
 # Usage and Build
-Usage is complicated right now. I do not any institutional access to a simulator capable of running UVM testbenches, and have been copying and pasting files into EDAplayground. Feel free to copy and paste modules nd play around.
+Usage is complicated right now. I do not any institutional access to a simulator capable of running UVM testbenches, and have been copying and pasting files into EDAplayground. Feel free to copy and paste modules and play around woth testbenches.
